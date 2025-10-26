@@ -72,7 +72,7 @@ class IDEAL implements MethodInterface, LivewireMethodInterface
             ->withData('client_id', $this->mollie->client->id);
 
         try {
-            $payment = $this->mollie->gateway->payments->create([
+            $data = [
                 'method' => 'ideal',
                 'amount' => [
                     'currency' => $this->mollie->client->currency()->code,
@@ -91,7 +91,33 @@ class IDEAL implements MethodInterface, LivewireMethodInterface
                     'gateway_type_id' => GatewayType::IDEAL,
                     'payment_type_id' => PaymentType::IDEAL,
                 ],
-            ]);
+            ];
+
+            if ($this->mollie->company_gateway->token_billing == 'always') {
+                // Check if a mollie CustomerId already exists for this client, if so, use that
+                $gateway_customer_reference = null;
+                if ($this->mollie->client->gateway_tokens->count() > 0) {
+                    $gateway_customer_reference = $this->mollie->client->gateway_tokens->first()->gateway_customer_reference;
+                } else {
+                    $customer = $this->mollie->gateway->customers->create([
+                        'name' => $this->mollie->client->name,
+                        'email' => $this->mollie->client->present()->email(),
+                        'metadata' => [
+                            'id' => $this->mollie->client->hashed_id,
+                        ],
+                    ]);
+                    $gateway_customer_reference = $customer->id;
+                }
+
+                $data['customerId'] = $gateway_customer_reference;
+                $data['sequenceType'] = 'first';
+
+                $this->mollie->payment_hash
+                    ->withData('mollieCustomerId', $gateway_customer_reference)
+                    ->withData('shouldStoreToken', true);
+            }
+
+            $payment = $this->mollie->gateway->payments->create($data);
 
             $this->mollie->payment_hash->withData('payment_id', $payment->id);
 
@@ -176,6 +202,32 @@ class IDEAL implements MethodInterface, LivewireMethodInterface
      */
     public function processSuccessfulPayment(\Mollie\Api\Resources\Payment $payment, string $status = 'paid'): RedirectResponse
     {
+        $payment_hash = $this->mollie->payment_hash;
+
+        if (property_exists($payment_hash->data, 'shouldStoreToken') && $payment_hash->data->shouldStoreToken) {
+            $mandates = \iterator_to_array($this->mollie->gateway->mandates->listForId($payment_hash->data->mollieCustomerId));
+
+            $payment_method_id = MolliePaymentDriver::convertToGatewayType($mandates[0]->details->method);
+
+            $payment_meta = new \stdClass();
+            $payment_meta->type = $payment_method_id;
+            if ($payment_method_id == GatewayType::CREDIT_CARD) {
+                $payment_meta->exp_month = (string) $mandates[0]->details->cardExpiryDate;
+                $payment_meta->exp_year = (string) '';
+                $payment_meta->brand = (string) $mandates[0]->details->cardLabel;
+                $payment_meta->last4 = (string) $mandates[0]->details->cardNumber;
+            } elseif ($payment_method_id == GatewayType::DIRECT_DEBIT) {
+                $payment_meta->consumerAccount = $mandates[0]->details->consumerAccount;
+                $payment_meta->consumerBic = $mandates[0]->details->consumerBic;
+            }
+
+            $this->mollie->storeGatewayToken([
+                'token' => $mandates[0]->id,
+                'payment_method_id' => $payment_method_id,
+                'payment_meta' =>  $payment_meta,
+            ], ['gateway_customer_reference' => $payment_hash->data->mollieCustomerId]);
+        }
+
         $p = \App\Models\Payment::query()
                     ->withTrashed()
                     ->where('company_id', $this->mollie->client->company_id)

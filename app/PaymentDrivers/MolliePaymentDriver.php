@@ -357,13 +357,13 @@ class MolliePaymentDriver extends BaseDriver
 
             if ($record) {
                 if (in_array($payment->status, ['canceled', 'expired', 'failed'])) {
-                    
+
                     if(property_exists($payment->metadata, 'hash') && $payment->metadata->hash){
                         $payment_hash = PaymentHash::where('hash', $payment->metadata->hash)->first();
                         $this->handlePendingGatewayFeeRemoval($payment_hash);
                     }
 
-                    $record->service()->deletePayment(false); 
+                    $record->service()->deletePayment(false);
 
                 }
 
@@ -453,6 +453,22 @@ class MolliePaymentDriver extends BaseDriver
     public function convertToMollieAmount($amount): string
     {
         return \number_format((float) $amount, 2, '.', '');
+    }
+
+    /**
+     * Convert mollie string to GatewayType int.
+     *
+     * @param string $type used by mollie: creditcard, directdebit, paypal
+     * @return int
+     */
+    static public function convertToGatewayType($type): int
+    {
+        $types = [
+            'creditcard' => GatewayType::CREDIT_CARD,
+            'directdebit' => GatewayType::DIRECT_DEBIT,
+            'paypal' => GatewayType::PAYPAL
+        ];
+        return $types[$type];
     }
 
     public function auth(): string

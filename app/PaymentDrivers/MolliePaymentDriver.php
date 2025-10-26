@@ -227,10 +227,10 @@ class MolliePaymentDriver extends BaseDriver
 
                 $data = [
                     'payment_method' => $cgt->token,
-                    'payment_type' => PaymentType::CREDIT_CARD_OTHER,
+                    'payment_type' => $cgt->payment_type_id == GatewayType::CREDIT_CARD ? PaymentType::CREDIT_CARD_OTHER : ($cgt->payment_type_id == GatewayType::PAYPAL ? PaymentType::PAYPAL : PaymentType::DIRECT_DEBIT),
                     'amount' => $amount,
                     'transaction_reference' => $payment->id,
-                    'gateway_type_id' => GatewayType::CREDIT_CARD,
+                    'gateway_type_id' => $cgt->payment_type_id,
                 ];
 
                 $this->confirmGatewayFee($data);

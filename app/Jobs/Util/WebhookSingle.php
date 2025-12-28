@@ -261,9 +261,4 @@ class WebhookSingle implements ShouldQueue
 
         return null;
     }
-
-    public function failed($exception = null)
-    {
-        config(['queue.failed.driver' => null]);
-    }
 }

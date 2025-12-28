@@ -12,6 +12,7 @@
 
 namespace App\Jobs\Util;
 
+use App\Jobs\Util\WebhookSingle;
 use App\Libraries\MultiDB;
 use App\Models\Company;
 use App\Models\Webhook;
@@ -60,8 +61,8 @@ class WebhookHandler implements ShouldQueue
                 ->where('company_id', $this->company->id)
                 ->where('event_id', $this->event_id)
                 ->cursor()
-                ->each(function ($subscription) {
-                    (new WebhookSingle($subscription->id, $this->entity, $this->company->db, $this->includes))->handle();
+                ->each(function (Webhook $subscription) {
+                    WebhookSingle::dispatch($subscription->id, $this->entity, $this->company->db, $this->includes);
                 });
     }
 

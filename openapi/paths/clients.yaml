@@ -23,33 +23,33 @@
             --header 'X-API-TOKEN: YOUR_API_TOKEN_HERE' \
             --header 'Accept: application/json'
       description: |
-            ###  GET /api/v1/clients  
+            ###  GET /api/v1/clients
             When retrieving a list of clients you can also chain query parameters in order to filter the dataset that is returned. For example, you can send a request to the following URL to retrieve clients that have a balance greater than 1000
-              
+
             ```
             /api/v1/clients?balance=gt:1000
-            ``` 
-            
+            ```
+
             You can also sort the results by adding a sort parameter. The following example will sort the results by the client name in descending order
-            
+
             ```
             /api/v1/clients?sort=name|desc
             ```
 
             You can also combine multiple filters together. The following example will return clients that have a balance greater than 1000 and are not deleted and have a name that starts with "Bob"
-            
+
             ```
             /api/v1/clients?balance=gt:1000&name=Bob*
             ```
 
             If you wish to retrieve child relations, you can also combine the query parameter `?include=` with a comma separated list of relationships
-            
+
             ```
             /api/v1/clients?include=activities,ledger,system_logs'
             ```
 
             The per_page and page variables allow pagination of the list of clients. The following example will return the second page of clients with 15 clients per page
-            
+
             ```
             /api/v1/clients?per_page=15&page=2
             ```
@@ -72,7 +72,7 @@
         - name: name
           in: query
           description: |
-            Filter by client name  
+            Filter by client name
 
             ```html
             ?name=bob
@@ -110,7 +110,7 @@
         - name: email
           in: query
           description: |
-            Filter by client email
+            Filter by client contact email
 
             ```html
             ?email=bob@gmail.com
@@ -119,6 +119,18 @@
           schema:
             type: string
           example: bob@gmail.com
+        - name: contact_key
+          in: query
+          description: |
+            Filter by client contact email
+
+            ```html
+            ?contact_key=bt1J5sDAEPEN9gSAB1DOYzkp22hDMM49
+            ```
+          required: false
+          schema:
+            type: string
+          example: bt1J5sDAEPEN9gSAB1DOYzkp22hDMM49
         - name: id_number
           in: query
           description: |
@@ -147,13 +159,13 @@
           in: query
           description: |
             Broad filter which targets multiple client columns:
-              
+
               ```html
-                name, 
-                id_number, 
-                contact.first_name 
-                contact.last_name, 
-                contact.email, 
+                name,
+                id_number,
+                contact.first_name
+                contact.last_name,
+                contact.email,
                 contact.phone
                 custom_value1,
                 custom_value2,
@@ -181,7 +193,7 @@
           required: false
           schema:
             type: string
-          example: id|desc name|desc balance|asc 
+          example: id|desc name|desc balance|asc
 
         - name: group
           in: query
@@ -221,10 +233,10 @@
               $ref: '#/components/headers/X-RateLimit-Limit'
           content:
             application/json:
-              schema:  
+              schema:
                 type: object
                 properties:
-                  data: 
+                  data:
                     type: array
                     items:
                       $ref: '#/components/schemas/Client'
@@ -247,17 +259,17 @@
       summary: 'Create client'
       description: |
 
-        ##  POST /api/v1/clients  
+        ##  POST /api/v1/clients
         Adds a client to a company
-          
-        > 🚨 Important    
+
+        > 🚨 Important
         When creating (or updating) a client you must include the child contacts with all mutating requests. Client contacts cannot be modified in isolation.
       x-codeSamples:
         - lang: php
           label: php
           source: |
             $ninja = new InvoiceNinja("YOUR-TOKEN");
-            
+
             $client = $ninja->clients->create([
                 'name' => 'Client Name',
                 'contacts' => [
@@ -404,9 +416,9 @@
 
         Handles the updating of a client by id
 
-        > 🚨 Important    
+        > 🚨 Important
         When creating (or updating) a client you must include the child contacts with all mutating requests. Client contacts cannot be modified in isolation.
-      
+
       x-codeSamples:
       - lang: php
         label: php
@@ -495,11 +507,11 @@
         Handles the deletion of a client by id
 
         > ❗ Note
-        Deleting a client does not purge the client from the system. The delete action will remove the clients data from all 
+        Deleting a client does not purge the client from the system. The delete action will remove the clients data from all
         views in the application but keep it on file in case it needs to be restored.
-        
-        A Client can be later restored reversing this action.  
-        
+
+        A Client can be later restored reversing this action.
+
         To permanently wipe a client and all of their records from the system, use the [/purge route](/#tag/clients/POST/api/v1/clients/{id}/purge)
 
       x-codeSamples:
@@ -613,7 +625,7 @@
         - clients
       summary: 'Blank Client'
       description: |
-        ##  GET /api/v1/clients/create  
+        ##  GET /api/v1/clients/create
 
         Returns a blank object with default values
 
@@ -668,7 +680,7 @@
         ##  POST /api/v1/clients/bulk
 
         Bulk actions allow to make changes to multiple clients in a single request the following actions are supported
-        
+
         - archive
         - restore
         - delete
@@ -687,7 +699,7 @@
         The template bulk action allows the creation of a custom template using the provided template_id to be run against the array of clients provided.
 
         - assign_group
-        
+
         Allows setting multiple clients to a single group
 
         - bulk_update
@@ -702,7 +714,7 @@
         - custom_value2
         - custom_value3
         - custom_value4
-      
+
       x-codeSamples:
       - lang: php
         label: php
@@ -736,7 +748,7 @@
           application/json:
             schema:
               $ref: '#/components/schemas/GenericBulkAction'
-              
+
       responses:
         200:
           description: 'The Client list Response of the updated clients that were bulk updated'
@@ -814,14 +826,14 @@
                   type: array
                   description: |
                     Array of files to upload. The files should be sent with the key name 'documents[]'.
-                    
+
                     Supported file types:
                     - PDF (.pdf)
                     - Word (.doc, .docx)
                     - Excel (.xls, .xlsx)
                     - Images (.jpg, .jpeg, .png)
                     - Text (.txt)
-                    
+
                     Maximum file size: 20MB per file
                   items:
                     type: string
@@ -922,13 +934,13 @@
 
         Handles merging 2 clients
 
-        The id parameter is the client that will be the primary client after the merge has completed. 
+        The id parameter is the client that will be the primary client after the merge has completed.
 
         The mergeable_client_hashed_id is the client that will be merged into the primary client, this clients records will be updated and associated with the primary client.
 
-        > 🚨 **Important**    
+        > 🚨 **Important**
         This action requires elevated permissions, please note the X-API-PASSWORD header requirements for this route.
-        
+
       x-codeSamples:
       - lang: php
         label: php

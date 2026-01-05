@@ -79,6 +79,17 @@ class ClientFilters extends QueryFilters
         });
     }
 
+    public function contact_key(string $contact_key = ''): Builder
+    {
+        if (strlen($contact_key) == 0) {
+            return $this->builder;
+        }
+
+        return $this->builder->whereHas('contacts', function ($query) use ($contact_key) {
+            $query->where('contact_key', $contact_key);
+        });
+    }
+
     public function client_id(string $client_id = ''): Builder
     {
         if (strlen($client_id) == 0) {
@@ -173,7 +184,7 @@ class ClientFilters extends QueryFilters
             $sort_col[0] = 'name';
         }
 
-        if(is_array($sort_col) && $sort_col[0] == 'contacts'){   
+        if(is_array($sort_col) && $sort_col[0] == 'contacts'){
         }
         elseif (!is_array($sort_col) || count($sort_col) != 2 || !in_array($sort_col[0], \Illuminate\Support\Facades\Schema::getColumnListing($this->builder->getModel()->getTable()))) {
             return $this->builder;
@@ -192,12 +203,12 @@ class ClientFilters extends QueryFilters
             return $this->builder->orderByRaw(
                 "
                 COALESCE(
-                    NULLIF(clients.name, ''), 
+                    NULLIF(clients.name, ''),
                     (
-                        SELECT COALESCE(NULLIF(first_name, ''), email) 
-                        FROM client_contacts 
-                        WHERE client_contacts.client_id = clients.id 
-                        AND client_contacts.deleted_at IS NULL 
+                        SELECT COALESCE(NULLIF(first_name, ''), email)
+                        FROM client_contacts
+                        WHERE client_contacts.client_id = clients.id
+                        AND client_contacts.deleted_at IS NULL
                         LIMIT 1
                     )
                 ) " . $dir
@@ -208,21 +219,21 @@ class ClientFilters extends QueryFilters
         if($sort_col[0] == 'contacts'){
             return $this->builder->orderByRaw("
                 (
-                    SELECT 
-                        CASE 
-                            WHEN first_name IS NOT NULL AND first_name != '' AND last_name IS NOT NULL AND last_name != '' 
+                    SELECT
+                        CASE
+                            WHEN first_name IS NOT NULL AND first_name != '' AND last_name IS NOT NULL AND last_name != ''
                             THEN CONCAT(first_name, ' ', last_name)
-                            WHEN first_name IS NOT NULL AND first_name != '' 
+                            WHEN first_name IS NOT NULL AND first_name != ''
                             THEN first_name
-                            WHEN last_name IS NOT NULL AND last_name != '' 
+                            WHEN last_name IS NOT NULL AND last_name != ''
                             THEN last_name
                             ELSE email
                         END
-                    FROM client_contacts 
-                    WHERE client_contacts.client_id = clients.id 
+                    FROM client_contacts
+                    WHERE client_contacts.client_id = clients.id
                     AND client_contacts.deleted_at IS NULL
                     ORDER BY
-                        CASE 
+                        CASE
                             WHEN first_name IS NOT NULL AND first_name != '' AND last_name IS NOT NULL AND last_name != '' THEN 1
                             WHEN first_name IS NOT NULL AND first_name != '' THEN 2
                             WHEN last_name IS NOT NULL AND last_name != '' THEN 3

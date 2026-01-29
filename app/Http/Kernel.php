@@ -45,6 +45,7 @@ use App\Http\Middleware\ValidateSignature;
 use App\Http\Middleware\PasswordProtection;
 use App\Http\Middleware\ClientPortalEnabled;
 use App\Http\Middleware\CheckClientExistence;
+use App\Http\Middleware\CustomClientPortalRedirect;
 use App\Http\Middleware\VendorContactKeyLogin;
 use Illuminate\Http\Middleware\SetCacheHeaders;
 use Illuminate\Session\Middleware\StartSession;
@@ -161,6 +162,7 @@ class Kernel extends HttpKernel
         'contact_key_login' => ContactKeyLogin::class,
         'vendor_contact_key_login' => VendorContactKeyLogin::class,
         'check_client_existence' => CheckClientExistence::class,
+        'custom_client_portal_redirect' => CustomClientPortalRedirect::class,
         'user_verified' => UserVerified::class,
         'document_db' => SetDocumentDb::class,
         'session_domain' => SessionDomains::class,

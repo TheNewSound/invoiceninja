@@ -12,6 +12,7 @@
 
 namespace App\PaymentDrivers;
 
+use App\Exceptions\PaymentFailed;
 use App\Http\Requests\ClientPortal\Payments\PaymentResponseRequest;
 use App\Http\Requests\Gateways\Mollie\Mollie3dsRequest;
 use App\Http\Requests\Payments\PaymentWebhookRequest;

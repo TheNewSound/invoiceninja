@@ -12,6 +12,7 @@
 
 namespace App\Observers;
 
+use App\Jobs\Product\RecalculateSubscriptionPrices;
 use App\Jobs\Util\WebhookHandler;
 use App\Models\Product;
 use App\Models\Webhook;
@@ -71,6 +72,10 @@ class ProductObserver
             $event = Webhook::EVENT_DELETE_PRODUCT;
         }
 
+        // Check if price has changed and update subscription prices
+        if ($product->wasChanged('price') && !$product->is_deleted) {
+            RecalculateSubscriptionPrices::dispatch($product);
+        }
 
         $subscriptions = Webhook::where('company_id', $product->company_id)
             ->where('event_id', $event)

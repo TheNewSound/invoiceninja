@@ -24,6 +24,7 @@ use App\Services\Recurring\RecurringService;
 use App\Utils\Traits\Recurring\HasRecurrence;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\Presenters\RecurringInvoicePresenter;
+use App\Models\Traits\HasComputedCustomValue4;
 
 /**
  * Class for Recurring Invoices.
@@ -139,6 +140,7 @@ class RecurringInvoice extends BaseModel
     use HasRecurrence;
     use PresentableTrait;
     use Searchable;
+    use HasComputedCustomValue4;
 
 
     protected $presenter = RecurringInvoicePresenter::class;
@@ -209,7 +211,6 @@ class RecurringInvoice extends BaseModel
         'custom_value1',
         'custom_value2',
         'custom_value3',
-        'custom_value4',
         'amount',
         'partial',
         'frequency_id',
@@ -264,7 +265,6 @@ class RecurringInvoice extends BaseModel
         'custom_value1',
         'custom_value2',
         'custom_value3',
-        'custom_value4',
         'uses_inclusive_taxes',
         'private_notes',
         'public_notes',

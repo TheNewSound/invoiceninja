@@ -19,6 +19,7 @@ use App\Utils\Traits\CleanLineItems;
 use App\Utils\Traits\ChecksEntityStatus;
 use App\Http\ValidationRules\EInvoice\ValidInvoiceScheme;
 use App\Http\ValidationRules\Project\ValidProjectForClient;
+use App\Http\ValidationRules\RecurringInvoice\OnlyOneSubscriptionProduct;
 
 class UpdateRecurringInvoiceRequest extends Request
 {
@@ -71,6 +72,8 @@ class UpdateRecurringInvoiceRequest extends Request
 
         $rules['location_id'] = ['nullable', 'sometimes','bail', Rule::exists('locations', 'id')->where('company_id', $user->company()->id)->where('client_id', $this->recurring_invoice->client_id)];
         $rules['vendor_id'] = ['nullable', 'sometimes','bail', Rule::exists('vendors', 'id')->where('company_id', $user->company()->id)];
+
+        $rules['line_items'] = ['array', new OnlyOneSubscriptionProduct()];
 
         return $rules;
     }

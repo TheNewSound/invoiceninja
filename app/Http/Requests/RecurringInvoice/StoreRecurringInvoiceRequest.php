@@ -14,6 +14,7 @@ namespace App\Http\Requests\RecurringInvoice;
 
 use App\Http\Requests\Request;
 use App\Http\ValidationRules\Project\ValidProjectForClient;
+use App\Http\ValidationRules\RecurringInvoice\OnlyOneSubscriptionProduct;
 use App\Models\Client;
 use App\Models\RecurringInvoice;
 use App\Utils\Traits\CleanLineItems;
@@ -74,6 +75,8 @@ class StoreRecurringInvoiceRequest extends Request
         $rules['amount'] = ['sometimes', 'bail', 'numeric', 'max:99999999999999'];
         $rules['location_id'] = ['nullable', 'sometimes','bail', Rule::exists('locations', 'id')->where('company_id', $user->company()->id)->where('client_id', $this->client_id)];
         $rules['vendor_id'] = ['nullable', 'sometimes','bail', Rule::exists('vendors', 'id')->where('company_id', $user->company()->id)];
+
+        $rules['line_items'] = ['array', new OnlyOneSubscriptionProduct()];
 
         return $rules;
     }

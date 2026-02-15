@@ -259,7 +259,7 @@ class TemplateEngine
             $wrapper = view($this->getTemplatePath($email_style), $data)->render();
             $wrapper = str_replace('<head>', '', $wrapper);
         } else {
-            $wrapper = view($this->getTemplatePath('client'), $data)->render();
+            $wrapper = view($this->getTemplatePath('client_new'), $data)->render();
             $wrapper = str_replace('<head>', '', $wrapper);
         }
 

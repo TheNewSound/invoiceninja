@@ -51,7 +51,7 @@ class ClientStatement extends Mailable
     public function content()
     {
         return new Content(
-            view: 'email.template.client',
+            view: 'email.template.client_new',
             text: 'email.template.text',
             with: [
                 'text_body' => $this->data['body'],

@@ -80,7 +80,7 @@ class TemplateEmail extends Mailable
         $template_name = 'email.template.' . $this->build_email->getTemplate();
 
         if (in_array($this->build_email->getTemplate(), ['light', 'dark'])) {
-            $template_name = 'email.template.client';
+            $template_name = 'email.template.client_new';
         }
 
         if ($this->build_email->getTemplate() == 'premium') {

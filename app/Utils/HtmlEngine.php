@@ -845,7 +845,7 @@ class HtmlEngine
         }
 
         $data['$actual_delivery_date'] = ['value' => $this->translateDate(data_get($this->entity, 'e_invoice.Invoice.Delivery.0.ActualDeliveryDate', ''), $this->client->date_format(), $this->client->locale()), 'label' => ctrans('texts.actual_delivery_date')];
-        
+
         $invoice_period = '';
 
         if($period = data_get($this->entity, 'e_invoice.Invoice.InvoicePeriod.0', false)) {
@@ -1035,7 +1035,7 @@ Código seguro de verificación (CSV): {$verifactu_log->status}";
 
         return $data;
     }
-    
+
     public function generateLabelsAndValues()
     {
         $data = [];
@@ -1214,7 +1214,7 @@ Código seguro de verificación (CSV): {$verifactu_log->status}";
         }
 
         return '
-<div class=\"center\">
+<div>
 <!--[if (gte mso 9)|(IE)]>
 <table align="center" cellspacing="0" cellpadding="0" style="width: 600px;">
     <tr>
@@ -1222,9 +1222,9 @@ Código seguro de verificación (CSV): {$verifactu_log->status}";
         <![endif]-->
         <table align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" >
         <tbody><tr>
-        <td align="center" class="new_button" style="border-radius: 2px; background-color: ' . $this->settings->primary_color . '">
-            <a href="' . $link . '" target="_blank" class="new_button" style="text-decoration: none; border: 1px solid ' . $this->settings->primary_color . '; display: inline-block; border-radius: 2px; padding-top: 15px; padding-bottom: 15px; padding-left: 25px; padding-right: 25px; font-size: 20px; color: #fff">
-            <span label="cta button">' . $text . '</span>
+        <td align="center" class="new_button" style="background-color: '.$this->settings->primary_color.'; border-radius: 4px;">
+            <a href="'. $link . '" target="_blank" class="new_button" style="background-color: '.$this->settings->primary_color.'; font-family: Helvetica, Arial, sans-serif, system-ui; -webkit-text-size-adjust: none; border-radius: 4px; color: #fff; display: inline-block; overflow: hidden; text-decoration: none; padding: 8px 18px; word-break: break-all; font-size: 16px;">
+            <singleline label="cta button">'. $text .'</singleline>
             </a>
         </td>
         </tr>

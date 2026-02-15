@@ -76,7 +76,7 @@ class ClientPaymentFailureObject
         $mail_obj->subject = $data['subject'];
         $mail_obj->data = $this->getData();
 
-        $mail_obj->markdown = 'email.template.client';
+        $mail_obj->markdown = 'email.template.client_new';
         $mail_obj->tag = $this->company->company_key;
         $mail_obj->text_view = 'email.template.text';
 

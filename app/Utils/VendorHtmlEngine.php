@@ -873,12 +873,12 @@ html {
 <table align="center" cellspacing="0" cellpadding="0" style="width: 600px;">
     <tr>
     <td align="center" valign="top">
-        <![endif]-->        
+        <![endif]-->
         <table align="center" border="0" cellpadding="0" cellspacing="0" role="presentation" >
         <tbody><tr>
-        <td align="center" class="new_button" style="border-radius: 2px; background-color: ' . $this->settings->primary_color . '">
-            <a href="' . $link . '" target="_blank" class="new_button" style="text-decoration: none; border: 1px solid ' . $this->settings->primary_color . '; display: inline-block; border-radius: 2px; padding-top: 15px; padding-bottom: 15px; padding-left: 25px; padding-right: 25px; font-size: 20px; color: #fff">
-            <singleline label="cta button">' . $text . '</singleline>
+        <td align="center" class="new_button" style="background-color: '.$this->settings->primary_color.'; border-radius: 4px;">
+            <a href="'. $link . '" target="_blank" class="new_button" style="background-color: '.$this->settings->primary_color.'; font-family: Helvetica, Arial, sans-serif, system-ui; -webkit-text-size-adjust: none; border-radius: 4px; color: #fff; display: inline-block; overflow: hidden; text-decoration: none; padding: 8px 18px; word-break: break-all; font-size: 16px;">
+            <singleline label="cta button">'. $text .'</singleline>
             </a>
         </td>
         </tr>

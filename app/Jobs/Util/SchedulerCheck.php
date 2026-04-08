@@ -52,25 +52,25 @@ class SchedulerCheck implements ShouldQueue
                 nlog("I wasn't able to migrate the data.");
                 nlog($e->getMessage());
             }
-
-            try {
-                Artisan::call('clear-compiled');
-                Artisan::call('route:clear');
-                Artisan::call('config:clear');
-                // Artisan::call('optimize');
-            } catch (\Exception $e) {
-                nlog("I wasn't able to optimize.");
-                nlog($e->getMessage());
-            }
-
-            try {
-                Artisan::call('view:clear');
-            } catch (\Exception $e) {
-                nlog("I wasn't able to clear the views.");
-                nlog($e->getMessage());
-            }
-
-            VersionCheck::dispatch();
+//
+//            try {
+//                Artisan::call('clear-compiled');
+//                Artisan::call('route:clear');
+//                Artisan::call('config:clear');
+//                // Artisan::call('optimize');
+//            } catch (\Exception $e) {
+//                nlog("I wasn't able to optimize.");
+//                nlog($e->getMessage());
+//            }
+//
+//            try {
+//                Artisan::call('view:clear');
+//            } catch (\Exception $e) {
+//                nlog("I wasn't able to clear the views.");
+//                nlog($e->getMessage());
+//            }
+//
+//            VersionCheck::dispatch();
         }
     }
 }

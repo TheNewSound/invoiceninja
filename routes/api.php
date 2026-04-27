@@ -213,6 +213,9 @@ Route::group(['middleware' => ['throttle:api', 'token_auth', 'valid_json','local
     Route::post('companies/{company}/default', [CompanyController::class, 'default']);
     Route::post('companies/updateOriginTaxData/{company}', [CompanyController::class, 'updateOriginTaxData'])->middleware('throttle:3,1');
 
+    Route::get('mijnmotor/subscriptions/{client}', [\App\Http\Controllers\MijnmotorController::class, 'getSubscriptions'])->name('mijnmotor.subscriptions');
+    Route::post('mijnmotor/test_token', [\App\Http\Controllers\MijnmotorController::class, 'testToken'])->name('mijnmotor.test_token');
+
     Route::get('company_ledger', [CompanyLedgerController::class, 'index'])->name('company_ledger.index');
 
     Route::resource('company_gateways', CompanyGatewayController::class);

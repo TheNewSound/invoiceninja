@@ -52,6 +52,8 @@ class PortalComposer
 
     public const MODULE_PURCHASE_ORDERS = 16384;
 
+    public const MODULE_MIJNMOTOR = 131072;
+
     public $settings;
 
     /**

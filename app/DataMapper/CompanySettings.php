@@ -536,12 +536,19 @@ class CompanySettings extends BaseSettings
     public string $ses_topic_arn = '';
     public string $ses_from_address = '';
 
+    public string $mijnmotor_oauth_domain = '';
+    public string $mijnmotor_oauth_client_identifier = '';
+    public string $mijnmotor_oauth_client_secret = '';
+
     public static $casts = [
         'ses_from_address' => 'string',
         'ses_topic_arn' => 'string',
         'ses_secret_key' => 'string',
         'ses_access_key' => 'string',
         'ses_region' => 'string',
+        'mijnmotor_oauth_domain' => 'string',
+        'mijnmotor_oauth_client_identifier' => 'string',
+        'mijnmotor_oauth_client_secret' => 'string',
         'unlock_invoice_documents_after_payment' => 'bool',
         'preference_product_notes_for_html_view' => 'bool',
         'enable_client_profile_update'       => 'bool',

@@ -75,7 +75,8 @@ class ClientObserver
                                     ->exists();
 
         if ($subscriptions) {
-            WebhookHandler::dispatch(Webhook::EVENT_CREATE_CLIENT, $client, $client->company)->delay(0);
+            // Delay with 1 second to prevent race condition where ClientContacts are not yet created for the client.
+            WebhookHandler::dispatch(Webhook::EVENT_CREATE_CLIENT, $client, $client->company)->delay(1);
         }
 
         // Only push to QuickBooks if:

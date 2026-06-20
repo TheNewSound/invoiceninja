@@ -348,6 +348,11 @@ class MolliePaymentDriver extends BaseDriver
             $molliePayment = $this->gateway->payments->get($request->id);
 
             $payment = Payment::withTrashed()->where('transaction_reference', $request->id)->first();
+            $hasChargeback = isset($molliePayment->amountChargedBack?->value)
+                && self::convertFromMollieAmount((string) $molliePayment->amountChargedBack->value) > 0;
+            $status = $hasChargeback
+                ? Payment::STATUS_FAILED
+                : self::convertFromMollieStatus($molliePayment->status ?? '');
 
             if (!$payment) {
                 // Construct the payment record from the metadata in the payment hash.
@@ -377,8 +382,7 @@ class MolliePaymentDriver extends BaseDriver
 
                 // Uses $this->payment_hash
                 $payment = $this->createPayment(
-                    $data,
-                    self::convertFromMollieStatus($molliePayment->status)
+                    $data, $status
                 );
             } else {
                 $client = $payment->client;
@@ -387,19 +391,23 @@ class MolliePaymentDriver extends BaseDriver
 
             $this->createClientGatewayTokenFromMolliePayment($molliePayment);
 
-            $status = self::convertFromMollieStatus($molliePayment->status);
             if (in_array($status, [Payment::STATUS_CANCELLED, Payment::STATUS_FAILED])) {
                 if ($molliePayment->metadata?->hash) {
                     $payment_hash = PaymentHash::where('hash', $molliePayment->metadata->hash)->firstOrFail();
                     $this->handlePendingGatewayFeeRemoval($payment_hash);
                     $this->payment_hash = $payment_hash; // Used by sendFailureMail()
+                } else {
+                    $this->payment_hash = PaymentHash::where('payment_id', $payment->id)->first();
                 }
                 if (!in_array($payment->status_id, [Payment::STATUS_CANCELLED, Payment::STATUS_FAILED])) {
                     // Payment was moved from other status into CANCELLED or FAILED
-                    $this->sendFailureMail($molliePayment->details?->failureMessage ?? "There was a problem processing your payment.");
+                    $failureMessage = $hasChargeback ? "Stornering" : ($molliePayment->details?->failureMessage ?? "There was a problem processing your payment.");
+                    $this->sendFailureMail($failureMessage);
                 }
                 // Sets payment status to cancelled synchronously and handles other consequences
-                $payment->service()->deletePayment(false);
+                if (!$payment->is_deleted) {
+                    $payment->service()->deletePayment(false);
+                }
             }
             if ($payment->status_id !== Payment::STATUS_COMPLETED && $status === Payment::STATUS_COMPLETED){
                 // Payment was moved from other status into COMPLETED status
@@ -416,8 +424,23 @@ class MolliePaymentDriver extends BaseDriver
                 $payment->refunded = self::convertFromMollieAmount($molliePayment->amountRefunded->value);
             }
 
-            // Handle remaining amount (applied amount)
-            if ($molliePayment->amountRemaining?->currency === $payment->currency->code) {
+            if ($hasChargeback) {
+                $payment->applied = 0;
+                $meta = (array) ($payment->meta ?? []);
+                $meta['mollie_chargeback'] = [
+                    'amount' => self::convertFromMollieAmount((string) $molliePayment->amountChargedBack->value),
+                    'currency' => $molliePayment->amountChargedBack->currency ?? null,
+                    'reason_code' => $molliePayment->details?->bankReasonCode ?? null,
+                    'reason' => $molliePayment->details?->bankReason ?? null,
+                ];
+                $payment->meta = (object) $meta;
+
+                $chargeback_notes = trim("chargeback: " . $molliePayment->amountChargedBack->value);
+                if (!str_contains($payment->private_notes ?? "", $chargeback_notes)) {
+                    $payment->private_notes .= "\n" . $chargeback_notes;
+                }
+            } elseif ($molliePayment->amountRemaining?->currency === $payment->currency->code) {
+                // Handle remaining amount (applied amount)
                 $payment->applied = self::convertFromMollieAmount($molliePayment->amountRemaining->value);
             } else {
                 // If no remaining amount, use the full amount as applied for completed payments

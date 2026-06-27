@@ -103,6 +103,7 @@ class MijnmotorController extends BaseController
                 'grant_type' => 'client_credentials',
                 'client_id' => $oauthClientId,
                 'client_secret' => $oauthClientSecret,
+                'scope' => 'any:subscriptions.read'
             ]);
 
             if ($response->failed()) {

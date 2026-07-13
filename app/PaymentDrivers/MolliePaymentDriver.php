@@ -439,6 +439,29 @@ class MolliePaymentDriver extends BaseDriver
                 if (!str_contains($payment->private_notes ?? "", $chargeback_notes)) {
                     $payment->private_notes .= "\n" . $chargeback_notes;
                 }
+
+                // Delete the client gateway token used for this payment
+                if ($molliePayment->mandateId) {
+                    $client_gateway_token = $this->client->gateway_tokens()
+                        ->where('token', $molliePayment->mandateId)
+                        ->where('company_gateway_id', $this->company_gateway->id)
+                        ->first();
+
+                    if ($client_gateway_token) {
+                        $client_gateway_token_repo = new \App\Repositories\ClientGatewayTokenRepository();
+                        $client_gateway_token_repo->delete($client_gateway_token);
+                    }
+                }
+
+                // Stop all active recurring invoices for this client
+                $active_recurring_invoices = \App\Models\RecurringInvoice::where('client_id', $this->client->id)
+                    ->where('status_id', \App\Models\RecurringInvoice::STATUS_ACTIVE)
+                    ->get();
+
+                foreach ($active_recurring_invoices as $recurring_invoice) {
+                    $recurring_invoice->setCompleted();
+                }
+
             } elseif ($molliePayment->amountRemaining?->currency === $payment->currency->code) {
                 // Handle remaining amount (applied amount)
                 $payment->applied = self::convertFromMollieAmount($molliePayment->amountRemaining->value);

@@ -53,6 +53,7 @@ class AutoBillCron
                                                 ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
                                                 ->where('balance', '>', 0)
                                                 ->whereDate('partial_due_date', '<=', now())
+                                                ->whereDate('partial_due_date', '>=', now()->subWeeks(2))
                                                 ->where('auto_bill_enabled', true)
                                                 ->where('auto_bill_tries', '<', 3)
                                                 ->whereHas('company', function ($query) {
@@ -75,6 +76,7 @@ class AutoBillCron
                                         ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
                                         ->where('balance', '>', 0)
                                         ->whereDate('due_date', '<=', now())
+                                        ->whereDate('due_date', '>=', now()->subWeeks(2))
                                         ->where('auto_bill_enabled', true)
                                         ->where('auto_bill_tries', '<', 3)
                                         ->whereHas('company', function ($query) {
@@ -102,6 +104,7 @@ class AutoBillCron
 
                 $auto_bill_partial_invoices = Invoice::query()
                                             ->whereDate('partial_due_date', '<=', now())
+                                            ->whereDate('partial_due_date', '>=', now()->subWeeks(2))
                                             ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
                                             ->where('auto_bill_enabled', true)
                                             ->where('auto_bill_tries', '<', 3)
@@ -126,6 +129,7 @@ class AutoBillCron
 
                 $auto_bill_invoices = Invoice::query()
                                             ->whereDate('due_date', '<=', now())
+                                            ->whereDate('due_date', '>=', now()->subWeeks(2))
                                             ->whereIn('status_id', [Invoice::STATUS_SENT, Invoice::STATUS_PARTIAL])
                                             ->where('auto_bill_enabled', true)
                                             ->where('auto_bill_tries', '<', 3)

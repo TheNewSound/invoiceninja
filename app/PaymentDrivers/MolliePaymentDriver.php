@@ -408,6 +408,17 @@ class MolliePaymentDriver extends BaseDriver
                 if (!$payment->is_deleted) {
                     $payment->service()->deletePayment(false);
                 }
+
+                // Increment auto_bill_tries for associated invoices when payment fails
+                foreach ($payment->paymentables as $paymentable) {
+                    if ($paymentable->paymentable_type == 'invoices') {
+                        $invoice = Invoice::withTrashed()->find($paymentable->paymentable_id);
+                        if ($invoice && $invoice->auto_bill_enabled) {
+                            $invoice->increment('auto_bill_tries', 1);
+                            $invoice->refresh();
+                        }
+                    }
+                }
             }
             if ($payment->status_id !== Payment::STATUS_COMPLETED && $status === Payment::STATUS_COMPLETED){
                 // Payment was moved from other status into COMPLETED status

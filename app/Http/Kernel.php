@@ -191,6 +191,7 @@ class Kernel extends HttpKernel
         ContactRegister::class,
         PhantomSecret::class,
         CheckClientExistence::class,
+        CustomClientPortalRedirect::class,
         ClientPortalEnabled::class,
         PasswordProtection::class,
         Locale::class,

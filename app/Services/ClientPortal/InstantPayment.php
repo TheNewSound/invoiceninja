@@ -80,6 +80,14 @@ class InstantPayment
                     ->save();
         });
 
+        /* Mark invoices as paid if there is no balance */
+        $invoices->each(function ($invoice) {
+            /** @var \App\Models\Invoice $invoice */
+            if ($invoice->balance == 0 && !$invoice->is_deleted && ($invoice->status_id == Invoice::STATUS_DRAFT || $invoice->status_id == Invoice::STATUS_SENT)) {
+                $invoice->service()->markPaid()->save();
+            }
+        });
+
         /* pop non payable invoice from the $payable_invoices array */
 
         $payable_invoices = $payable_invoices->filter(function ($payable_invoice) use ($invoices) {
